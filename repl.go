@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/ryderwsos/pokedex/internal/pokeapi"
 )
 
-func startRepl() {
+func startRepl(config *Config) {
 	var userInput string
 	input := bufio.NewScanner(os.Stdin)
 	for {
@@ -21,7 +23,7 @@ func startRepl() {
 
 		command, exist := getCommand()[words[0]]
 		if exist {
-			err := command.callback()
+			err := command.callback(config)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -42,7 +44,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*Config) error
 }
 
 func getCommand() map[string]cliCommand {
@@ -57,5 +59,21 @@ func getCommand() map[string]cliCommand {
 			description: "Display all console commands",
 			callback:    commandHelp,
 		},
+		"map": {
+			name:        "map",
+			description: "Gives a list of the next 20 areas on the Pokedex",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Gives a list of the previous 20 areas on the Pokedex",
+			callback:    commandMapb,
+		},
 	}
+}
+
+type Config struct {
+	Previous      *string
+	Next          *string
+	pokeapiClient pokeapi.Client
 }
