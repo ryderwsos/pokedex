@@ -13,6 +13,18 @@ func (client *Client) GetAreaLocations(urlExt *string) (locationArea, error) {
 		url = *urlExt
 	}
 
+	//check if current url already exist in cache
+	if val, ok := client.cache.Get(url); ok {
+		locationAreaData := locationArea{}
+		err := json.Unmarshal(val, &locationAreaData)
+		if err != nil {
+			return locationArea{}, err
+		}
+		return locationAreaData, nil
+	}
+
+	//move on with rest of request
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return locationArea{}, err
@@ -35,6 +47,9 @@ func (client *Client) GetAreaLocations(urlExt *string) (locationArea, error) {
 	if err != nil {
 		return locationArea{}, err
 	}
+
+	//add url to cache since it didnt exist already
+	client.cache.Add(url, data)
 
 	return locationAreaData, nil
 }
