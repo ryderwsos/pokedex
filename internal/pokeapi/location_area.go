@@ -53,3 +53,43 @@ func (client *Client) GetAreaLocations(urlExt *string) (locationArea, error) {
 
 	return locationAreaData, nil
 }
+
+func (client *Client) GetPokemonEncounters(name string) (encounters, error) {
+	url := baseURL + "/location-area/" + name
+
+	if val, ok := client.cache.Get(url); ok {
+		encountersData := encounters{}
+		err := json.Unmarshal(val, &encountersData)
+		if err != nil {
+			return encounters{}, err
+		}
+		return encountersData, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return encounters{}, err
+	}
+
+	res, err := client.httpClient.Do(req)
+	if err != nil {
+		return encounters{}, err
+	}
+
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return encounters{}, err
+	}
+
+	encountersData := encounters{}
+	err = json.Unmarshal(data, &encountersData)
+	if err != nil {
+		return encounters{}, err
+	}
+
+	client.cache.Add(url, data)
+
+	return encountersData, nil
+}
