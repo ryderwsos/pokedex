@@ -70,9 +70,14 @@ func getCommand() map[string]cliCommand {
 			callback:    commandMapb,
 		},
 		"explore": {
-			name:        "explore",
+			name:        "explore [map]",
 			description: "Gives a list of all pokemons in that given area",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch [pokemon]",
+			description: "Attempt to catch the specified pokemon",
+			callback:    commandCatch,
 		},
 	}
 }
@@ -81,4 +86,5 @@ type Config struct {
 	Previous      *string
 	Next          *string
 	pokeapiClient pokeapi.Client
+	pokemonList   map[string]pokeapi.Pokemon
 }
